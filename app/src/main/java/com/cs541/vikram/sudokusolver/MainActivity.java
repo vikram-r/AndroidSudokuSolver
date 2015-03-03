@@ -5,13 +5,20 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 
 public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        //setContentView(R.layout.activity_main);
+
+        BasicSudokuView basicSudokuView = new BasicSudokuView(this); //todo maybe make this a field var
+        setContentView(basicSudokuView);
     }
 
 
@@ -35,5 +42,22 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    public void solveSudoku(){
+        Map<String, Set<Integer>> dataMap = new HashMap<>();
+    }
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+
+        //todo save puzzle
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
     }
 }
