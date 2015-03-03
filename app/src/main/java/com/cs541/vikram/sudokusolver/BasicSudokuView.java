@@ -2,12 +2,15 @@ package com.cs541.vikram.sudokusolver;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.text.InputType;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 
 /**
  * Created by vikram on 3/2/15.
@@ -20,6 +23,9 @@ public class BasicSudokuView extends View {
 
     private int WIDTH;
     private int HEIGHT;
+    private float CELL_HEIGHT;
+    private float CELL_WIDTH;
+
     private Rect clickedCell;
 
     Paint lineColor = new Paint();
@@ -59,13 +65,50 @@ public class BasicSudokuView extends View {
             Log.v(TAG, "GOT Cell" + "[" + selected.row + "," + selected.column + "]");
             clickedCell = selected.getRect();
             invalidate(clickedCell); //refreshes just this cell. invalidate() takes too long
-
+            openNumpad();
             return true;
         }
         return super.onTouchEvent(event);
     }
 
+    public void openNumpad(){ //todo does this belong in application and not view?
+        Log.v(TAG, "HERE");
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        //builder.setTitle("Select a value");
+        builder.setMessage("Select a value");
+        final EditText et = new EditText(this.getContext());
+        et.setInputType(InputType.TYPE_CLASS_NUMBER);
+        builder.setView(et);
 
+        builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int which){
+                setValueForCell(et.getText().toString());
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int which){
+                dialog.dismiss();
+            }
+        });
+
+        builder.create().show();
+    }
+
+    private void setValueForCell(String value){
+        Log.v(TAG, "Try to set value " + value + "!");
+        try {
+            if (Integer.parseInt(value) < 1 || Integer.parseInt(value) > 9){
+                throw new IllegalArgumentException("Invalid input");
+            }
+
+        }catch(Exception e){
+            Log.v(TAG, "INVALID VALUE ENTERED!");
+            //todo invalid input, what do I do here?
+        }
+    }
 
     @Override
     protected void onDraw(Canvas canvas){
@@ -73,8 +116,8 @@ public class BasicSudokuView extends View {
         //set the size of the sudoku grid
         WIDTH = getWidth();
         HEIGHT = new Long(Math.round(getHeight() * .90)).intValue();
-        final float CELL_HEIGHT = HEIGHT / DIM;
-        final float CELL_WIDTH = WIDTH / DIM;
+        CELL_HEIGHT = HEIGHT / DIM;
+        CELL_WIDTH = WIDTH / DIM;
 
         Log.v(TAG, "height: " + HEIGHT);
         Log.v(TAG, "width: " + WIDTH);
@@ -98,7 +141,6 @@ public class BasicSudokuView extends View {
         }
 
         //draw clicked cell if possible
-        Log.v(TAG, "here");
         canvas.drawRect(clickedCell, clickedColor);
 
     }
@@ -115,6 +157,7 @@ public class BasicSudokuView extends View {
 
         public Rect getRect(){
             Rect rect = new Rect();
+            //todo lazy coding, because cell_width/height are doubles in the global scope
             int CELL_WIDTH = WIDTH / DIM;
             int CELL_HEIGHT = HEIGHT / DIM;
             //left, top, right, bottom
