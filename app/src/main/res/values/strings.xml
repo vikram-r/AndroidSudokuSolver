@@ -3,4 +3,6 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="solve_button">Solve!</string>
+    <string name="clear_button">Clear All</string>
 </resources>
