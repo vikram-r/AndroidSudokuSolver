@@ -1,5 +1,6 @@
 package com.cs541.vikram.sudokusolver;
 
+import android.graphics.Rect;
 import android.util.Log;
 
 import java.util.Arrays;
@@ -21,7 +22,7 @@ public class BoardState {
     private final int A_VAL = 65; //ascii value of 'A'
 
 
-    Map<String, Set<Integer>> possibleValues;
+    Map<String, PosValues> possibleValues;
 
     public BoardState(){
         possibleValues = new HashMap<>();
@@ -39,13 +40,68 @@ public class BoardState {
             for (int j = 1; j <= DIM; j++) { //1 to 9 (not 0 to 8)
                 String cellName = rowIdent + j;
 
-                Set<Integer> initialValues = new HashSet(Arrays.asList(1,2,3,4,5,6,7,8,9)); //initially a cell can be any value
-                possibleValues.put(cellName, initialValues);
+                Set<Integer> initialNumValues = new HashSet(Arrays.asList(1,2,3,4,5,6,7,8,9)); //initially a cell can be any value
+                Rect rectValue = makeRectForCell(i - A_VAL, j - 1);//the row and column here are 0 indexed for easier calculation
+
+                possibleValues.put(cellName, new PosValues(initialNumValues, rectValue));
 
             }
         }
 
         Log.v(TAG, possibleValues.toString());
+    }
+
+    public Rect getRectForCoordinates(float x, float y){
+        return possibleValues.get(getNameForCoordinates(x, y)).rect;
+    }
+
+    //helper method for getRectForCoordinates
+    private String getNameForCoordinates(float x, float y){
+        int row = Double.valueOf(Math.floor( y / (HEIGHT / DIM) )).intValue();
+        int column = Double.valueOf(Math.floor( x / (WIDTH / DIM) )).intValue();
+
+        return convertRowColToName(row, column);
+    }
+
+    //helper method for getRectForCoordinates
+    //incoming rows/col will be 0 to 8
+    private String convertRowColToName(int row, int col){
+        Log.v(TAG, "converter converting (" + row + "," + col + ") into " + Character.toString((char)(row + A_VAL)) + (col + 1));
+        return Character.toString((char)(row + A_VAL)) + (col + 1);
+    }
+
+
+    //Helper method for constructor
+    //should only ever be called once per cell in the constructor
+    private Rect makeRectForCell(int row, int column){
+        Rect rect = new Rect();
+        //todo lazy coding, because cell_width/height are doubles in the global scope
+        int CELL_WIDTH = WIDTH / DIM;
+        int CELL_HEIGHT = HEIGHT / DIM;
+        //left, top, right, bottom
+        int left = column * CELL_WIDTH;
+        int top = row * CELL_HEIGHT;
+        rect.set(left, top, left + CELL_WIDTH, top + CELL_HEIGHT);
+        Log.v(TAG,"Made Rect: " + rect.toShortString());
+        return rect;
+    }
+
+
+
+    //wrapper object so i'm not constantly generating new rect objects
+    private class PosValues{
+        public Set<Integer> initialValues;
+        public Rect rect;
+
+        public PosValues(Set<Integer> initialValues, Rect rect){
+            this.initialValues = initialValues;
+            this.rect = rect;
+        }
+
+        @Override
+        public String toString(){
+           return initialValues.toString();
+        }
     }
 
 }
