@@ -14,6 +14,7 @@ import java.util.Set;
  */
 public class BoardState {
     private final String TAG = "BoardState";
+    private boolean isNewPuzzle;
 
     private int WIDTH;
     private int HEIGHT;
@@ -26,6 +27,7 @@ public class BoardState {
 
     public BoardState(){
         possibleValues = new HashMap<>();
+        isNewPuzzle = true;
     }
 
     public void createStructure(int width, int height, int dim){
@@ -47,6 +49,7 @@ public class BoardState {
             }
         }
 
+        isNewPuzzle = false;
         Log.v(TAG, possibleValues.toString());
     }
 
@@ -100,6 +103,10 @@ public class BoardState {
         int top = row * CELL_HEIGHT;
         rect.set(left, top, left + CELL_WIDTH, top + CELL_HEIGHT);
         return rect;
+    }
+
+    public boolean getIsNewPuzzle(){
+        return isNewPuzzle;
     }
 
 

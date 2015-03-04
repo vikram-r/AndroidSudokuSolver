@@ -3,6 +3,7 @@ package com.cs541.vikram.sudokusolver;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +16,7 @@ import java.util.Set;
 public class MainActivity extends ActionBarActivity {
 
     private final String TAG = "SudokuSolver";
+    private BoardState boardState = new BoardState();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +54,20 @@ public class MainActivity extends ActionBarActivity {
 
     public void solveSudoku(View view){
         Log.v(TAG, "Clicked Solve!");
+        Log.v(TAG, "BOARD STATE IS: " + boardState.toString());
+
     }
 
     public void clearBoard(View view){
         Log.v(TAG, "Clicked Clear!");
+        boardState = new BoardState();
+
+        setContentView(R.layout.sudoku_layout);
+    }
+
+    //method to let activity access board through getContext()
+    public BoardState getBoardState(){
+        return boardState;
     }
 
     @Override

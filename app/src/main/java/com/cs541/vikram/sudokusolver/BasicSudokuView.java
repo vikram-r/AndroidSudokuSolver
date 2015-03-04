@@ -20,7 +20,6 @@ public class BasicSudokuView extends View {
 
     private final String TAG = "BasicSudokuView";
 
-    private BoardState boardState = new BoardState();
     private final int DIM = 9;
     private final int BLOCK_SIZE = 3;
 
@@ -31,9 +30,6 @@ public class BasicSudokuView extends View {
 
     private Rect clickedCell;
     private String clickedCellName;
-
-
-    private boolean firstDraw = true;
 
     Paint lineColor = new Paint();
     Paint gridColor = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -55,10 +51,10 @@ public class BasicSudokuView extends View {
         Log.v(TAG, "CREATED VIEW");
         setFocusable(true);
         setFocusableInTouchMode(true);
-        init();
+        initCanvas();
     }
 
-    private void init(){
+    private void initCanvas(){
         gridColor.setColor(getResources().getColor(R.color.White));
 
         lineColor.setStyle(Paint.Style.STROKE);
@@ -82,8 +78,8 @@ public class BasicSudokuView extends View {
 
 //            Cell selected = new Cell(x, y);
 
-            clickedCell = boardState.getRectForCoordinates(x, y);
-            clickedCellName = boardState.getNameForCoordinates(x, y); //todo terrible terrible design
+            clickedCell = getBoardState().getRectForCoordinates(x, y);
+            clickedCellName = getBoardState().getNameForCoordinates(x, y); //todo terrible terrible design
 
             invalidate(clickedCell); //refreshes just this cell. invalidate() takes too long
             openNumpad();
@@ -123,7 +119,7 @@ public class BasicSudokuView extends View {
             if (intVal < 1 || intVal > 9){
                 throw new IllegalArgumentException("Invalid input");
             }else{
-                boardState.setAbsoluteValueWithName(clickedCellName, intVal);
+                getBoardState().setAbsoluteValueWithName(clickedCellName, intVal);
                 //refresh the square again because a number was added
                 invalidate(clickedCell); //todo if bug comes back, remove this
             }
@@ -139,10 +135,8 @@ public class BasicSudokuView extends View {
         //HEIGHT = new Long(Math.round(getHeight() * .90)).intValue();
         HEIGHT = getHeight(); //my layout now handles scaling for me :D
 
-
-        if (firstDraw){
-            boardState.createStructure(WIDTH, HEIGHT, DIM);
-            firstDraw = false;
+        if (getBoardState().getIsNewPuzzle()){
+            getBoardState().createStructure(WIDTH, HEIGHT, DIM);
         }
 
         //set the size of the sudoku grid
@@ -177,18 +171,20 @@ public class BasicSudokuView extends View {
         float middle_height = CELL_HEIGHT / 2 - (fm.ascent + fm.descent) / 2;
         for (int i = 0; i < DIM; i++) {
             for (int j = 0; j < DIM; j++) {
-                int val = boardState.getAbsoluteValueWithRowCol(j, i); //NOTICE IT IS (ROW, COL) = (Y, X)
+                String toDraw = "";
+                int val = getBoardState().getAbsoluteValueWithRowCol(j, i); //NOTICE IT IS (ROW, COL) = (Y, X)
                 if (val != -1){
-                    canvas.drawText(val + "",  middle_width + (i * CELL_WIDTH), middle_height + (j * CELL_HEIGHT), numberColor);
+                    toDraw = val + "";
                 }
+                canvas.drawText(toDraw,  middle_width + (i * CELL_WIDTH), middle_height + (j * CELL_HEIGHT), numberColor);
             }
         }
 
-
     }
 
+    //get board status from the activity
     public BoardState getBoardState(){
-        return boardState;
+        return ((MainActivity)getContext()).getBoardState();
     }
 
 }
