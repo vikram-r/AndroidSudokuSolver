@@ -51,12 +51,30 @@ public class BoardState {
         Log.v(TAG, possibleValues.toString());
     }
 
+    //used when initially setting cell values. Can maybe do validation here
+    public void setAbsoluteValueWithName(String name, int absValue){
+        Log.v(TAG, "Setting Value " + absValue + " for Cell: " + name);
+        //possibleValues.get(name).initialValues.retainAll(new HashSet(Arrays.asList(absValue))); //make the set only contain this value, since it is correct
+        possibleValues.get(name).initialValues = new HashSet(Arrays.asList(absValue)); //make the set only contain this value, since it is correct
+        Log.v(TAG, possibleValues.toString());
+    }
+
+    public int getAbsoluteValueWithRowCol(int row, int col){
+        Set<Integer> vals = possibleValues.get(convertRowColToName(row, col)).initialValues;
+        if (vals.size() == 1){
+            for (int val : vals){ //todo ugly, replace with iterator
+                return val;     //this will only loop once, because there is only 1 element anyways
+            }
+        }
+        return -1; //bad value
+    }
+
     public Rect getRectForCoordinates(float x, float y){
         return possibleValues.get(getNameForCoordinates(x, y)).rect;
     }
 
-    //helper method for getRectForCoordinates
-    private String getNameForCoordinates(float x, float y){
+    //helper method for getRectForCoordinates, but also used in view to keep track of selected key - bad design
+    public String getNameForCoordinates(float x, float y){
         int row = Double.valueOf(Math.floor( y / (HEIGHT / DIM) )).intValue();
         int column = Double.valueOf(Math.floor( x / (WIDTH / DIM) )).intValue();
 
@@ -66,7 +84,7 @@ public class BoardState {
     //helper method for getRectForCoordinates
     //incoming rows/col will be 0 to 8
     private String convertRowColToName(int row, int col){
-        Log.v(TAG, "converter converting (" + row + "," + col + ") into " + Character.toString((char)(row + A_VAL)) + (col + 1));
+//        Log.v(TAG, "converter converting (" + row + "," + col + ") into " + Character.toString((char)(row + A_VAL)) + (col + 1));
         return Character.toString((char)(row + A_VAL)) + (col + 1);
     }
 

@@ -29,12 +29,15 @@ public class BasicSudokuView extends View {
     private float CELL_WIDTH;
 
     private Rect clickedCell;
+    private String clickedCellName;
+
 
     private boolean firstDraw = true;
 
     Paint lineColor = new Paint();
     Paint gridColor = new Paint(Paint.ANTI_ALIAS_FLAG);
     Paint clickedColor = new Paint();
+    Paint numberColor = new Paint(Paint.ANTI_ALIAS_FLAG);
 
 
 
@@ -53,21 +56,26 @@ public class BasicSudokuView extends View {
         lineColor.setColor(getResources().getColor(R.color.Black));
 
         clickedCell = new Rect();
-        clickedColor.setColor(getResources().getColor(R.color.Red));
+        clickedColor.setColor(getResources().getColor(R.color.LightYellow));
+
+        numberColor = new Paint(Paint.ANTI_ALIAS_FLAG);
+        numberColor.setColor(getResources().getColor(R.color.Black));
 
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event){
-        if (event.getAction() == MotionEvent.ACTION_DOWN){
+        if (event.getAction() == MotionEvent.ACTION_DOWN && event.getX() <= WIDTH && event.getY() <= HEIGHT){
             float x = event.getX();
             float y = event.getY();
             Log.v(TAG, "Touched (" + x + ", " + y + ")");
             //figure out which square it belongs to, and create a rectangle that we can color later
 
-            Cell selected = new Cell(x, y);
-            Log.v(TAG, "GOT Cell" + "[" + selected.row + "," + selected.column + "]");
-            clickedCell = selected.getRect();
+//            Cell selected = new Cell(x, y);
+
+            clickedCell = boardState.getRectForCoordinates(x, y);
+            clickedCellName = boardState.getNameForCoordinates(x, y); //todo terrible terrible design
+
             invalidate(clickedCell); //refreshes just this cell. invalidate() takes too long
             openNumpad();
             return true;
@@ -104,10 +112,14 @@ public class BasicSudokuView extends View {
     private void setValueForCell(String value){
         Log.v(TAG, "Try to set value " + value + "!");
         try {
-            if (Integer.parseInt(value) < 1 || Integer.parseInt(value) > 9){
+            int intVal = Integer.parseInt(value);
+            if (intVal < 1 || intVal > 9){
                 throw new IllegalArgumentException("Invalid input");
+            }else{
+                boardState.setAbsoluteValueWithName(clickedCellName, intVal);
+                //refresh the square again because a number was added
+                invalidate(clickedCell); //todo if bug comes back, remove this
             }
-
         }catch(Exception e){
             Log.v(TAG, "INVALID VALUE ENTERED!");
             //todo invalid input, what do I do here?
@@ -154,33 +166,23 @@ public class BasicSudokuView extends View {
         //draw clicked cell if possible
         canvas.drawRect(clickedCell, clickedColor);
 
-    }
-
-    private class Cell {
-        int row;
-        int column;
-
-        public Cell(float x, float y){
-            //height/dim and width/dim are the cell height and cell width respectively
-            this.row = Double.valueOf(Math.floor( y / (HEIGHT / DIM) )).intValue();
-            this.column = Double.valueOf(Math.floor( x / (WIDTH / DIM) )).intValue();
-        }
-
-        public Rect getRect(){
-            Rect rect = new Rect();
-            //todo lazy coding, because cell_width/height are doubles in the global scope
-            int CELL_WIDTH = WIDTH / DIM;
-            int CELL_HEIGHT = HEIGHT / DIM;
-            //left, top, right, bottom
-            int left = column * CELL_WIDTH;
-            int top = row * CELL_HEIGHT;
-            rect.set(left, top, left + CELL_WIDTH, top + CELL_HEIGHT);
-            Log.v(TAG,"Rect: " + rect.toShortString());
-            return rect;
+        //draw the numbers that are set
+        numberColor.setTextSize(CELL_HEIGHT * 0.75f);
+        numberColor.setTextScaleX(CELL_WIDTH / CELL_HEIGHT);
+        numberColor.setTextAlign(Paint.Align.CENTER);
+        Paint.FontMetrics fm = numberColor.getFontMetrics();
+        float middle_width = CELL_WIDTH / 2;
+        float middle_height = CELL_HEIGHT / 2 - (fm.ascent + fm.descent) / 2;
+        for (int i = 0; i < DIM; i++) {
+            for (int j = 0; j < DIM; j++) {
+                int val = boardState.getAbsoluteValueWithRowCol(j, i); //NOTICE IT IS (ROW, COL) = (Y, X)
+                if (val != -1){
+                    canvas.drawText(val + "",  middle_width + (i * CELL_WIDTH), middle_height + (j * CELL_HEIGHT), numberColor);
+                }
+            }
         }
 
 
     }
-
 
 }
