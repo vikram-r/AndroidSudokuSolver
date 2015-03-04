@@ -16,9 +16,10 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
+        setContentView(R.layout.sudoku_layout);
 
-        BasicSudokuView basicSudokuView = new BasicSudokuView(this); //todo maybe make this a field var
-        setContentView(basicSudokuView);
+        //BasicSudokuView basicSudokuView = new BasicSudokuView(this); //todo maybe make this a field var
+        //setContentView(basicSudokuView);
     }
 
 

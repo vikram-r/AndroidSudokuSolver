@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.text.InputType;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -42,7 +43,15 @@ public class BasicSudokuView extends View {
 
 
     public BasicSudokuView(Context context){
-        super(context);
+        this(context, null);
+
+    }
+    public BasicSudokuView(Context context, AttributeSet attrs){
+        this(context, attrs, 0);
+
+    }
+    public BasicSudokuView(Context context, AttributeSet attrs, int defStyle){
+        super(context, attrs, defStyle);
         Log.v(TAG, "CREATED VIEW");
         setFocusable(true);
         setFocusableInTouchMode(true);
@@ -129,7 +138,9 @@ public class BasicSudokuView extends View {
     @Override
     protected void onDraw(Canvas canvas){
         WIDTH = getWidth();
-        HEIGHT = new Long(Math.round(getHeight() * .90)).intValue();
+        //HEIGHT = new Long(Math.round(getHeight() * .90)).intValue();
+        HEIGHT = getHeight(); //my layout now handles scaling for me :D
+
 
         if (firstDraw){
             Log.v(TAG, "First Draw, so Creating BoardState");
