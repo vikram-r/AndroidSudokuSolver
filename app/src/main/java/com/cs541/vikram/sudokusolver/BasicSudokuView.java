@@ -18,6 +18,8 @@ import android.widget.EditText;
 public class BasicSudokuView extends View {
 
     private final String TAG = "SudokuSolver";
+
+    private BoardState boardState = new BoardState();
     private final int DIM = 9;
     private final int BLOCK_SIZE = 3;
 
@@ -27,6 +29,8 @@ public class BasicSudokuView extends View {
     private float CELL_WIDTH;
 
     private Rect clickedCell;
+
+    private boolean firstDraw = true;
 
     Paint lineColor = new Paint();
     Paint gridColor = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -112,10 +116,17 @@ public class BasicSudokuView extends View {
 
     @Override
     protected void onDraw(Canvas canvas){
-        Log.v(TAG, "Drawing Board");
-        //set the size of the sudoku grid
         WIDTH = getWidth();
         HEIGHT = new Long(Math.round(getHeight() * .90)).intValue();
+
+        if (firstDraw){
+            Log.v(TAG, "First Draw, so Creating BoardState");
+            boardState.createStructure(WIDTH, HEIGHT, DIM);
+            firstDraw = false;
+        }
+
+        Log.v(TAG, "Drawing Board");
+        //set the size of the sudoku grid
         CELL_HEIGHT = HEIGHT / DIM;
         CELL_WIDTH = WIDTH / DIM;
 
