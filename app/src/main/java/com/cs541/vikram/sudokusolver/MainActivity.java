@@ -2,8 +2,10 @@ package com.cs541.vikram.sudokusolver;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +13,8 @@ import java.util.Set;
 
 
 public class MainActivity extends ActionBarActivity {
+
+    private final String TAG = "SudokuSolver";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +50,12 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
-    public void solveSudoku(){
-        Map<String, Set<Integer>> dataMap = new HashMap<>();
+    public void solveSudoku(View view){
+        Log.v(TAG, "Clicked Solve!");
+    }
+
+    public void clearBoard(View view){
+        Log.v(TAG, "Clicked Clear!");
     }
 
     @Override

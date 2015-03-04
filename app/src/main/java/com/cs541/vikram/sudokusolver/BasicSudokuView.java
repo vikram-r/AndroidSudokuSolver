@@ -18,7 +18,7 @@ import android.widget.EditText;
  */
 public class BasicSudokuView extends View {
 
-    private final String TAG = "SudokuSolver";
+    private final String TAG = "BasicSudokuView";
 
     private BoardState boardState = new BoardState();
     private final int DIM = 9;
@@ -93,7 +93,6 @@ public class BasicSudokuView extends View {
     }
 
     public void openNumpad(){ //todo does this belong in application and not view?
-        Log.v(TAG, "HERE");
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         //builder.setTitle("Select a value");
         builder.setMessage("Select a value");
@@ -119,7 +118,6 @@ public class BasicSudokuView extends View {
     }
 
     private void setValueForCell(String value){
-        Log.v(TAG, "Try to set value " + value + "!");
         try {
             int intVal = Integer.parseInt(value);
             if (intVal < 1 || intVal > 9){
@@ -143,20 +141,13 @@ public class BasicSudokuView extends View {
 
 
         if (firstDraw){
-            Log.v(TAG, "First Draw, so Creating BoardState");
             boardState.createStructure(WIDTH, HEIGHT, DIM);
             firstDraw = false;
         }
 
-        Log.v(TAG, "Drawing Board");
         //set the size of the sudoku grid
         CELL_HEIGHT = HEIGHT / DIM;
         CELL_WIDTH = WIDTH / DIM;
-
-        Log.v(TAG, "height: " + HEIGHT);
-        Log.v(TAG, "width: " + WIDTH);
-        Log.v(TAG, "cell height: " + CELL_HEIGHT);
-        Log.v(TAG, "cell width: " + CELL_WIDTH);
 
         canvas.drawRect(0, 0, WIDTH, HEIGHT, gridColor); //left, top, right, bottom, color
 
@@ -194,6 +185,10 @@ public class BasicSudokuView extends View {
         }
 
 
+    }
+
+    public BoardState getBoardState(){
+        return boardState;
     }
 
 }

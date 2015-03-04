@@ -19,6 +19,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:text="@string/clear_button"
+            android:onClick="clearBoard"
             android:layout_weight="1"/>
 
         <Button
@@ -26,6 +27,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:text="@string/solve_button"
+            android:onClick="solveSudoku"
             android:layout_weight="1"/>
 
         </LinearLayout>

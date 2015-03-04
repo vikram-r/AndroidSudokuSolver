@@ -13,7 +13,7 @@ import java.util.Set;
  * Created by vikram on 3/3/15.
  */
 public class BoardState {
-    private final String TAG = "SudokuSolver-BoardState";
+    private final String TAG = "BoardState";
 
     private int WIDTH;
     private int HEIGHT;
@@ -29,7 +29,6 @@ public class BoardState {
     }
 
     public void createStructure(int width, int height, int dim){
-        Log.v(TAG, "I made it!");
         WIDTH = width;
         HEIGHT = height;
         DIM = dim;
@@ -100,7 +99,6 @@ public class BoardState {
         int left = column * CELL_WIDTH;
         int top = row * CELL_HEIGHT;
         rect.set(left, top, left + CELL_WIDTH, top + CELL_HEIGHT);
-        Log.v(TAG,"Made Rect: " + rect.toShortString());
         return rect;
     }
 
