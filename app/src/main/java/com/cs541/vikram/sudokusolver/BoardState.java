@@ -56,13 +56,13 @@ public class BoardState {
     //used when initially setting cell values. Can maybe do validation here
     public void setAbsoluteValueWithName(String name, int absValue){
         Log.v(TAG, "Setting Value " + absValue + " for Cell: " + name);
-        //possibleValues.get(name).initialValues.retainAll(new HashSet(Arrays.asList(absValue))); //make the set only contain this value, since it is correct
-        possibleValues.get(name).initialValues = new HashSet(Arrays.asList(absValue)); //make the set only contain this value, since it is correct
+        //possibleValues.get(name).valueSet.retainAll(new HashSet(Arrays.asList(absValue))); //make the set only contain this value, since it is correct
+        possibleValues.get(name).valueSet = new HashSet(Arrays.asList(absValue)); //make the set only contain this value, since it is correct
         Log.v(TAG, possibleValues.toString());
     }
 
     public int getAbsoluteValueWithRowCol(int row, int col){
-        Set<Integer> vals = possibleValues.get(convertRowColToName(row, col)).initialValues;
+        Set<Integer> vals = possibleValues.get(convertRowColToName(row, col)).valueSet;
         if (vals.size() == 1){
             for (int val : vals){ //todo ugly, replace with iterator
                 return val;     //this will only loop once, because there is only 1 element anyways
@@ -113,17 +113,17 @@ public class BoardState {
 
     //wrapper object so i'm not constantly generating new rect objects
     private class PosValues{
-        public Set<Integer> initialValues;
+        public Set<Integer> valueSet;
         public Rect rect;
 
-        public PosValues(Set<Integer> initialValues, Rect rect){
-            this.initialValues = initialValues;
+        public PosValues(Set<Integer> valueSet, Rect rect){
+            this.valueSet = valueSet;
             this.rect = rect;
         }
 
         @Override
         public String toString(){
-           return initialValues.toString();
+           return valueSet.toString();
         }
     }
 
