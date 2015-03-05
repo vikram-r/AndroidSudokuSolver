@@ -106,8 +106,8 @@ public class BoardState {
                 neighborhoods.put(cellName, thisCellsNeighborhoods); //store the list of neighborhoods back in the map
             }
         }
-
-        Log.v(TAG, "HERE WE GO: " + neighborhoods.toString());
+        Log.v(TAG, "~keyset: " + neighborhoods.get("A3"));
+        Log.v(TAG, "The Neighborhoods: " + neighborhoods.toString());
     }
 
     private Set<String> computeBlockNeighborhood(int letStart, int letEnd, int numStart, int numEnd){
@@ -120,6 +120,93 @@ public class BoardState {
         }
         return thisNeighborhood;
     }
+
+
+
+    //todo SOLVER________________________________________________
+
+    private boolean assignAndPropagate(String name, int thisVal){
+        Log.v(TAG, "In assignAndPropagate(" + name + ", " + thisVal + ")");
+        for (int otherValue : possibleValues.get(name).valueSet){
+            if (otherValue != thisVal){//for all other values
+                //do the propogateDelete
+                if (!propagateDelete(name, otherValue)){ //todo maybe have to make a deepcopy of possibleValues here?
+                    Log.v(TAG, "uh oh");
+                    return false; //todo and potentially revert possibleValues back
+                }
+                Log.v(TAG, "here :)");
+            }
+        }
+        return true; //it worked :D
+    }
+
+    private boolean propagateDelete(String name, int thisVal){
+        Log.v(TAG, "In propogateDelete(" + name + ", " + thisVal + ")");
+        Set<Integer> valueSet = possibleValues.get(name).valueSet;
+        if (!(valueSet.contains(thisVal))){
+            return true; //already removed
+        }
+
+        valueSet.remove(thisVal); //todo actually remove...maybe have to deepcopy first here. Pretty sure don't in prev method
+
+
+        //(1)
+        if (valueSet.size() == 0){
+            return false; //removed last value, not valid
+        }else if(valueSet.size() == 1){ //the "otherValue" in next line is the supposed new value of this cell
+            for (int otherValue : valueSet){ //only 1 element
+                //go through every possible neighbor and try to delete from there.
+                for (String neighbor : getAllNeighbors(name)){
+                    if (!propagateDelete(neighbor, otherValue)){ //try to delete the other value from its neighbors
+                        return false; //constraint error
+                    }
+                }
+            }
+        }
+
+        //(2)
+        for (Set<String> neighborhood : neighborhoods.get(name)) { //for u in units
+            List<String> occurencesInNeighborhood = new ArrayList<>(); //count the number of times this value is needed in a particular neighborhood.
+            // IF it is 1, it must belong to that neighborhood
+            for (String neighbor : neighborhood) { //for s in u
+                if (possibleValues.get(neighbor).valueSet.contains(thisVal)) {
+                    Log.v(TAG, "adding neighbor " + neighbor);
+                    occurencesInNeighborhood.add(neighbor);
+                }
+            }
+            if (occurencesInNeighborhood.size() == 0) {
+                return false; //error, because trying to remove when it must be here
+            } else if (occurencesInNeighborhood.size() == 1) {
+                if (!assignAndPropagate(occurencesInNeighborhood.get(0), thisVal)) { //it must go into this neighbor if it is deleted from my cell
+                    return false;
+                }
+            }
+
+        }
+
+        return true;
+
+    }
+
+    private Set<String> getAllNeighbors(String name){
+        Set<String> neighbors = new HashSet<>();
+        for (Set<String> neighborhood : neighborhoods.get(name)){
+            for (String neighbor : neighborhood){
+                if (!name.equals(neighbor)){
+                    neighbors.add(neighbor); //adds all the neighbors, and doesn't add duplicates or self
+                }
+            }
+        }
+        return neighbors;
+    }
+
+
+
+
+    //todo SOLVER________________________________________________
+
+
+
 
     //used when initially setting cell values. Can maybe do validation here
     public void setAbsoluteValueWithName(String name, int absValue){
@@ -185,12 +272,14 @@ public class BoardState {
             for (int j = 1; j <= DIM; j++) {
                 if (PUZZLE.charAt(counter) != '0'){
                     String cellName = Character.toString((char)i) + j;
-                    setAbsoluteValueWithName(cellName, Integer.parseInt(Character.toString(PUZZLE.charAt(counter)))); //trusting input is correct
+//                    setAbsoluteValueWithName(cellName, Integer.parseInt(Character.toString(PUZZLE.charAt(counter)))); //trusting input is correct
+                    assignAndPropagate(cellName, Integer.parseInt(Character.toString(PUZZLE.charAt(counter)))); //trusting input is correct
                 }
-
                 counter++;
             }
         }
+
+        Log.v(TAG, "Did it work? " + possibleValues);
     }
 
 
