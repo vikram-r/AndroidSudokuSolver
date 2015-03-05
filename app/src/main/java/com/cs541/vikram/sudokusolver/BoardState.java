@@ -132,7 +132,7 @@ public class BoardState {
     //todo SOLVER________________________________________________
 
     private Map<String, Set<Integer>> assignAndPropagate(Map<String, Set<Integer>> values, String name, int thisVal){
-        Log.v(TAG, "In assignAndPropagate(" + name + ", " + thisVal + ")");
+//        Log.v(TAG, "In assignAndPropagate(" + name + ", " + thisVal + ")");
         //Iterator<Integer> possibleValuesIterator = possibleValues.get(name).iterator();
         //while (possibleValuesIterator.hasNext()){
         for (int otherValue : values.get(name)){
@@ -142,17 +142,15 @@ public class BoardState {
                 Map<String, Set<Integer>> testValues = getPossibleValuesDeepCopy(values);
                 values = propagateDelete(testValues, name, otherValue);
                 if (values == null){ //todo maybe have to make a deepcopy of possibleValues here?
-                    Log.v(TAG, "uh oh");
                     return null; //todo and potentially revert possibleValues back
                 }
-                Log.v(TAG, "here :)");
             }
         }
         return values; //it worked :D
     }
 
     private Map<String, Set<Integer>> propagateDelete(Map<String, Set<Integer>> values, String name, int thisVal){
-        Log.v(TAG, "In propogateDelete(" + name + ", " + thisVal + ")");
+//        Log.v(TAG, "In propogateDelete(" + name + ", " + thisVal + ")");
         Set<Integer> valueSet = values.get(name);
         if (!(valueSet.contains(thisVal))){
             return values; //already removed
@@ -183,7 +181,6 @@ public class BoardState {
             // IF it is 1, it must belong to that neighborhood
             for (String neighbor : neighborhood) { //for s in u
                 if (values.get(neighbor).contains(thisVal)) {
-                    Log.v(TAG, "adding neighbor " + neighbor);
                     occurencesInNeighborhood.add(neighbor);
                 }
             }
