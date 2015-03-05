@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +26,9 @@ public class BoardState {
     private final int A_VAL = 65; //ascii value of 'A'
 
 
-    Map<String, PosValues> possibleValues; //each cell name maps to an object which contains the cell's rectangle and potential values
+    Map<String, Set<Integer>> possibleValues; //each cell name maps to an object which contains the cell's rectangle and potential values
+
+    Map<String, Rect> rectanglesForCell;
 
     Map<String, List<Set<String>>> neighborhoods; //each cell name maps to a set containing all of it's neighborhoods (3 each)
                                                   //A single neighborhood is all the cells in it, including itself
@@ -34,6 +37,7 @@ public class BoardState {
 
     public BoardState(){
         possibleValues = new HashMap<>();
+        rectanglesForCell = new HashMap<>();
         neighborhoods = new HashMap<>();
         isNewPuzzle = true;
     }
@@ -51,8 +55,10 @@ public class BoardState {
 
                 Set<Integer> initialNumValues = new HashSet(Arrays.asList(1,2,3,4,5,6,7,8,9)); //initially a cell can be any value
                 Rect rectValue = makeRectForCell(i - A_VAL, j - 1);//the row and column here are 0 indexed for easier calculation
+                rectanglesForCell.put(cellName, rectValue);
+                //possibleValues.put(cellName, new PosValues(initialNumValues, rectValue));
 
-                possibleValues.put(cellName, new PosValues(initialNumValues, rectValue));
+                possibleValues.put(cellName, initialNumValues);
 
             }
         }
@@ -125,26 +131,31 @@ public class BoardState {
 
     //todo SOLVER________________________________________________
 
-    private boolean assignAndPropagate(String name, int thisVal){
+    private Map<String, Set<Integer>> assignAndPropagate(Map<String, Set<Integer>> values, String name, int thisVal){
         Log.v(TAG, "In assignAndPropagate(" + name + ", " + thisVal + ")");
-        for (int otherValue : possibleValues.get(name).valueSet){
+        //Iterator<Integer> possibleValuesIterator = possibleValues.get(name).iterator();
+        //while (possibleValuesIterator.hasNext()){
+        for (int otherValue : values.get(name)){
+            //int otherValue = possibleValuesIterator.next();
             if (otherValue != thisVal){//for all other values
                 //do the propogateDelete
-                if (!propagateDelete(name, otherValue)){ //todo maybe have to make a deepcopy of possibleValues here?
+                Map<String, Set<Integer>> testValues = getPossibleValuesDeepCopy(values);
+                values = propagateDelete(testValues, name, otherValue);
+                if (values == null){ //todo maybe have to make a deepcopy of possibleValues here?
                     Log.v(TAG, "uh oh");
-                    return false; //todo and potentially revert possibleValues back
+                    return null; //todo and potentially revert possibleValues back
                 }
                 Log.v(TAG, "here :)");
             }
         }
-        return true; //it worked :D
+        return values; //it worked :D
     }
 
-    private boolean propagateDelete(String name, int thisVal){
+    private Map<String, Set<Integer>> propagateDelete(Map<String, Set<Integer>> values, String name, int thisVal){
         Log.v(TAG, "In propogateDelete(" + name + ", " + thisVal + ")");
-        Set<Integer> valueSet = possibleValues.get(name).valueSet;
+        Set<Integer> valueSet = values.get(name);
         if (!(valueSet.contains(thisVal))){
-            return true; //already removed
+            return values; //already removed
         }
 
         valueSet.remove(thisVal); //todo actually remove...maybe have to deepcopy first here. Pretty sure don't in prev method
@@ -152,13 +163,15 @@ public class BoardState {
 
         //(1)
         if (valueSet.size() == 0){
-            return false; //removed last value, not valid
+            return null; //removed last value, not valid
         }else if(valueSet.size() == 1){ //the "otherValue" in next line is the supposed new value of this cell
             for (int otherValue : valueSet){ //only 1 element
                 //go through every possible neighbor and try to delete from there.
                 for (String neighbor : getAllNeighbors(name)){
-                    if (!propagateDelete(neighbor, otherValue)){ //try to delete the other value from its neighbors
-                        return false; //constraint error
+                    Map<String, Set<Integer>> testValues = getPossibleValuesDeepCopy(values);
+                    values = propagateDelete(testValues, neighbor, otherValue);
+                    if (values == null){ //try to delete the other value from its neighbors
+                        return null; //constraint error
                     }
                 }
             }
@@ -169,22 +182,24 @@ public class BoardState {
             List<String> occurencesInNeighborhood = new ArrayList<>(); //count the number of times this value is needed in a particular neighborhood.
             // IF it is 1, it must belong to that neighborhood
             for (String neighbor : neighborhood) { //for s in u
-                if (possibleValues.get(neighbor).valueSet.contains(thisVal)) {
+                if (values.get(neighbor).contains(thisVal)) {
                     Log.v(TAG, "adding neighbor " + neighbor);
                     occurencesInNeighborhood.add(neighbor);
                 }
             }
             if (occurencesInNeighborhood.size() == 0) {
-                return false; //error, because trying to remove when it must be here
+                return null; //error, because trying to remove when it must be here
             } else if (occurencesInNeighborhood.size() == 1) {
-                if (!assignAndPropagate(occurencesInNeighborhood.get(0), thisVal)) { //it must go into this neighbor if it is deleted from my cell
-                    return false;
+                Map<String, Set<Integer>> testValues = getPossibleValuesDeepCopy(values);
+                values = assignAndPropagate(testValues, occurencesInNeighborhood.get(0), thisVal);
+                if (values == null) { //it must go into this neighbor if it is deleted from my cell
+                    return null;
                 }
             }
 
         }
 
-        return true;
+        return values;
 
     }
 
@@ -212,12 +227,14 @@ public class BoardState {
     public void setAbsoluteValueWithName(String name, int absValue){
         Log.v(TAG, "Setting Value " + absValue + " for Cell: " + name);
         //possibleValues.get(name).valueSet.retainAll(new HashSet(Arrays.asList(absValue))); //make the set only contain this value, since it is correct
-        possibleValues.get(name).valueSet = new HashSet(Arrays.asList(absValue)); //make the set only contain this value, since it is correct
+
+        Set<Integer> posValuesForCell = new HashSet(Arrays.asList(absValue));
+        possibleValues.put(name, posValuesForCell); //make the set only contain this value, since it is correct
         Log.v(TAG, possibleValues.toString());
     }
 
     public int getAbsoluteValueWithRowCol(int row, int col){
-        Set<Integer> vals = possibleValues.get(convertRowColToName(row, col)).valueSet;
+        Set<Integer> vals = possibleValues.get(convertRowColToName(row, col));
         if (vals.size() == 1){
             for (int val : vals){ //todo ugly, replace with iterator
                 return val;     //this will only loop once, because there is only 1 element anyways
@@ -227,7 +244,8 @@ public class BoardState {
     }
 
     public Rect getRectForCoordinates(float x, float y){
-        return possibleValues.get(getNameForCoordinates(x, y)).rect;
+//        return possibleValues.get(getNameForCoordinates(x, y)).rect;
+        return rectanglesForCell.get(getNameForCoordinates(x, y));
     }
 
     //helper method for getRectForCoordinates, but also used in view to keep track of selected key - bad design
@@ -272,8 +290,8 @@ public class BoardState {
             for (int j = 1; j <= DIM; j++) {
                 if (PUZZLE.charAt(counter) != '0'){
                     String cellName = Character.toString((char)i) + j;
-//                    setAbsoluteValueWithName(cellName, Integer.parseInt(Character.toString(PUZZLE.charAt(counter)))); //trusting input is correct
-                    assignAndPropagate(cellName, Integer.parseInt(Character.toString(PUZZLE.charAt(counter)))); //trusting input is correct
+                    //setAbsoluteValueWithName(cellName, Integer.parseInt(Character.toString(PUZZLE.charAt(counter)))); //trusting input is correct
+                    possibleValues = assignAndPropagate(getPossibleValuesDeepCopy(possibleValues), cellName, Integer.parseInt(Character.toString(PUZZLE.charAt(counter)))); //trusting input is correct
                 }
                 counter++;
             }
@@ -283,6 +301,17 @@ public class BoardState {
     }
 
 
+    public Map<String, Set<Integer>> getPossibleValuesDeepCopy(Map<String, Set<Integer>> oldValues){
+        Map<String, Set<Integer>> deepCopy = new HashMap<>();
+        for (String key : oldValues.keySet()){
+            Set<Integer> values = new HashSet<>();
+            for(int value : oldValues.get(key)){
+                values.add(value);
+            }
+            deepCopy.put(key, values);
+        }
+        return deepCopy;
+    }
 
 
     //wrapper object so i'm not constantly generating new rect objects
