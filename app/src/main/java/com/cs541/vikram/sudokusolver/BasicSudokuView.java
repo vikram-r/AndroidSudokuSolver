@@ -52,6 +52,7 @@ public class BasicSudokuView extends View {
         setFocusable(true);
         setFocusableInTouchMode(true);
         initCanvas();
+
     }
 
     private void initCanvas(){
@@ -137,6 +138,18 @@ public class BasicSudokuView extends View {
 
         if (getBoardState().getIsNewPuzzle()){
             getBoardState().createStructure(WIDTH, HEIGHT, DIM);
+
+
+            //todo make this modifiable with command line!
+            //initialize some default values if necessary
+            if (((MainActivity)getContext()).PUZZLE_CHOICE == MainActivity.DEFAULT_PUZZLE.EASY){
+                String PUZZLE = "003020600900305001001806400008102900700000008006708200002609500800203009005010300";
+                getBoardState().setDefaultPuzzle(PUZZLE);
+            }else if(((MainActivity)getContext()).PUZZLE_CHOICE == MainActivity.DEFAULT_PUZZLE.HARD){
+                String PUZZLE = "003020600900305001001806400008102900700000008006708200002609500800203009005010300";
+                getBoardState().setDefaultPuzzle(PUZZLE);
+            }
+
         }
 
         //set the size of the sudoku grid

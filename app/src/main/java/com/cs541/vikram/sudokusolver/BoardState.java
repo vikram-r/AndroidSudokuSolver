@@ -109,6 +109,22 @@ public class BoardState {
         return isNewPuzzle;
     }
 
+    public void setDefaultPuzzle(String PUZZLE){
+        Log.v(TAG, "Setting up default puzzle");
+        int counter = 0;
+
+        for (int i = A_VAL; i < A_VAL + DIM; i++) {
+            for (int j = 1; j <= DIM; j++) {
+                if (PUZZLE.charAt(counter) != '0'){
+                    String cellName = Character.toString((char)i) + j;
+                    setAbsoluteValueWithName(cellName, Integer.parseInt(Character.toString(PUZZLE.charAt(counter)))); //trusting input is correct
+                }
+
+                counter++;
+            }
+        }
+    }
+
 
 
     //wrapper object so i'm not constantly generating new rect objects
