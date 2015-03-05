@@ -3,9 +3,11 @@ package com.cs541.vikram.sudokusolver;
 import android.graphics.Rect;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,10 +25,16 @@ public class BoardState {
     private final int A_VAL = 65; //ascii value of 'A'
 
 
-    Map<String, PosValues> possibleValues;
+    Map<String, PosValues> possibleValues; //each cell name maps to an object which contains the cell's rectangle and potential values
+
+    Map<String, List<Set<String>>> neighborhoods; //each cell name maps to a set containing all of it's neighborhoods (3 each)
+                                                  //A single neighborhood is all the cells in it, including itself
+
+
 
     public BoardState(){
         possibleValues = new HashMap<>();
+        neighborhoods = new HashMap<>();
         isNewPuzzle = true;
     }
 
@@ -49,8 +57,68 @@ public class BoardState {
             }
         }
 
+        createNeighborhoods();
+
         isNewPuzzle = false;
         Log.v(TAG, possibleValues.toString());
+    }
+
+    //todo this code is a nightmare
+    //make all of the valid possible neighborhoods, then assign each cell to them
+    private void createNeighborhoods(){
+        List<Set<String>> neighborhoodList= new ArrayList<>();
+
+        //first add all row neighborhoods (9)
+        for (int i = A_VAL; i < A_VAL + DIM; i++) {
+            Set<String> thisNeighborhood = new HashSet<>();
+            for (int j = 1; j <= DIM; j++) {
+                String cellName = Character.toString((char)i) + j;
+                thisNeighborhood.add(cellName);
+            }
+            neighborhoodList.add(thisNeighborhood);
+        }
+
+        //now add all column neighborhoods (9)
+        for (int j = 1; j <= DIM; j++) {
+            Set<String> thisNeighborhood = new HashSet<>();
+            for (int i = A_VAL; i < A_VAL + DIM; i++) {
+                String cellName = Character.toString((char) i) + j;
+                thisNeighborhood.add(cellName);
+            }
+            neighborhoodList.add(thisNeighborhood);
+        }
+
+        //now add all block neighborhoods (9)
+        for (int i = A_VAL; i < A_VAL + DIM; i += 3) {
+            for (int j = 1; j <= DIM; j += 3) {
+                neighborhoodList.add(computeBlockNeighborhood(i, i + 3, j, j + 3));
+            }
+        }
+
+        //now go through all the neighborhoods and add them to all cells inside them
+        for (Set<String> neighborhood : neighborhoodList){
+            for (String cellName : neighborhood){
+                List<Set<String>> thisCellsNeighborhoods = neighborhoods.get(cellName); //get existing list of neighborhoods
+                if (thisCellsNeighborhoods == null){
+                    thisCellsNeighborhoods = new ArrayList<>();
+                }
+                thisCellsNeighborhoods.add(neighborhood); //add the new neighborhood to the existing list
+                neighborhoods.put(cellName, thisCellsNeighborhoods); //store the list of neighborhoods back in the map
+            }
+        }
+
+        Log.v(TAG, "HERE WE GO: " + neighborhoods.toString());
+    }
+
+    private Set<String> computeBlockNeighborhood(int letStart, int letEnd, int numStart, int numEnd){
+        Set<String> thisNeighborhood = new HashSet<>();
+        for (int i = letStart; i < letEnd; i++) {
+            for (int j = numStart; j < numEnd; j++) {
+                String cellName = Character.toString((char) i) + j;
+                thisNeighborhood.add(cellName);
+            }
+        }
+        return thisNeighborhood;
     }
 
     //used when initially setting cell values. Can maybe do validation here
@@ -124,6 +192,7 @@ public class BoardState {
             }
         }
     }
+
 
 
 
