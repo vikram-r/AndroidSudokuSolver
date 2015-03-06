@@ -80,7 +80,6 @@ public class BasicSudokuView extends View {
         if (event.getAction() == MotionEvent.ACTION_DOWN && event.getX() <= WIDTH && event.getY() <= HEIGHT){
             float x = event.getX();
             float y = event.getY();
-            Log.v(TAG, "Touched (" + x + ", " + y + ")");
             //figure out which square it belongs to, and create a rectangle that we can color later
 
 //            Cell selected = new Cell(x, y);
@@ -95,7 +94,7 @@ public class BasicSudokuView extends View {
         return super.onTouchEvent(event);
     }
 
-    public void openNumpad(){ //todo does this belong in application and not view?
+    public void openNumpad(){
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         //builder.setTitle("Select a value");
         builder.setMessage("Select a value");

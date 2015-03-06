@@ -58,11 +58,9 @@ public class MainActivity extends ActionBarActivity {
 
 
     public void solveSudoku(View view){
-        Log.v(TAG, "Clicked Solve!");
-        Log.v(TAG, "BOARD STATE IS: " + boardState.toString());
-
         if (boardState.solve()){
             Log.v(TAG, "SOLVED!");
+            setContentView(R.layout.sudoku_layout); //to redraw board (it wont reset since im not deleting boardState)
         }else{
             Log.v(TAG, "COULD NOT SOLVE");
         }
@@ -70,7 +68,6 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void clearBoard(View view){
-        Log.v(TAG, "Clicked Clear!");
         boardState = new BoardState();
         PUZZLE_CHOICE = DEFAULT_PUZZLE.NONE; //don't use the default puzzle upon clear
 

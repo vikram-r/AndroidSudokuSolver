@@ -225,7 +225,6 @@ public class BoardState {
         assert(min < 10);
         Set<Integer> digitsToTry = values.get(minName);
         for (int digitToTry : digitsToTry) {
-            Log.v(TAG, "Trying for is~ (" + minName + ", " + digitToTry);
             Map<String, Set<Integer>> copyValues = getPossibleValuesDeepCopy(values);
             copyValues = hypothesizeValue(assignAndPropagate(copyValues, minName, digitToTry));
             if (copyValues != null){
@@ -314,9 +313,7 @@ public class BoardState {
                 counter++;
             }
         }
-        //possibleValues = hypothesizeValue(getPossibleValuesDeepCopy(possibleValues));
-        //possibleValues = hypothesizeValue(possibleValues); //todo uncomment this one too :P
-        solve();
+        //solve();
     }
 
     public boolean solve(){
