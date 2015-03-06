@@ -112,8 +112,6 @@ public class BoardState {
                 neighborhoods.put(cellName, thisCellsNeighborhoods); //store the list of neighborhoods back in the map
             }
         }
-        Log.v(TAG, "~keyset: " + neighborhoods.get("A3"));
-        Log.v(TAG, "The Neighborhoods: " + neighborhoods.toString());
     }
 
     private Set<String> computeBlockNeighborhood(int letStart, int letEnd, int numStart, int numEnd){
@@ -253,16 +251,6 @@ public class BoardState {
 
     //todo SOLVER________________________________________________
 
-    //used when initially setting cell values. Can maybe do validation here
-    public void setAbsoluteValueWithName(String name, int absValue){
-        Log.v(TAG, "Setting Value " + absValue + " for Cell: " + name);
-        //possibleValues.get(name).valueSet.retainAll(new HashSet(Arrays.asList(absValue))); //make the set only contain this value, since it is correct
-
-        Set<Integer> posValuesForCell = new HashSet(Arrays.asList(absValue));
-        possibleValues.put(name, posValuesForCell); //make the set only contain this value, since it is correct
-        Log.v(TAG, possibleValues.toString());
-    }
-
     public int getAbsoluteValueWithRowCol(int row, int col){
         Set<Integer> vals = possibleValues.get(convertRowColToName(row, col));
         if (vals.size() == 1){
@@ -326,10 +314,26 @@ public class BoardState {
                 counter++;
             }
         }
-        //possibleValues = hypothesizeValue(getPossibleValuesDeepCopy(possibleValues)); //todo uncomment this one too :P
-        possibleValues = hypothesizeValue(possibleValues); //todo uncomment this one too :P
+        //possibleValues = hypothesizeValue(getPossibleValuesDeepCopy(possibleValues));
+        //possibleValues = hypothesizeValue(possibleValues); //todo uncomment this one too :P
+        solve();
+    }
 
-        Log.v(TAG, "Did it work? " + possibleValues);
+    public boolean solve(){
+        possibleValues = hypothesizeValue(possibleValues); //todo uncomment this one too :P
+        return true;
+    }
+
+    //true if added, false otherwise
+    public boolean userAddCell(String name, int val){
+        //try to assign it
+        Map<String, Set<Integer>> testValues = assignAndPropagate(getPossibleValuesDeepCopy(possibleValues), name, val);
+        if (testValues == null){
+            return false;
+        }else{
+            possibleValues = testValues;
+            return true;
+        }
     }
 
 

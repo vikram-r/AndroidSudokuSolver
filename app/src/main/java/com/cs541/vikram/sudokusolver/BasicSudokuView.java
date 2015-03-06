@@ -26,6 +26,7 @@ public class BasicSudokuView extends View {
     //private final String HARD_PUZZLE = "850002400720000009004000000000107002305000900040000000000080070017000000000036040";
     private final String HARDEST_PUZZLE = "800000000003600000070090200050007000000045700000100030001000068008500010090000400";
 
+
     private final int DIM = 9;
     private final int BLOCK_SIZE = 3;
 
@@ -54,7 +55,6 @@ public class BasicSudokuView extends View {
     }
     public BasicSudokuView(Context context, AttributeSet attrs, int defStyle){
         super(context, attrs, defStyle);
-        Log.v(TAG, "CREATED VIEW");
         setFocusable(true);
         setFocusableInTouchMode(true);
         initCanvas();
@@ -126,7 +126,11 @@ public class BasicSudokuView extends View {
             if (intVal < 1 || intVal > 9){
                 throw new IllegalArgumentException("Invalid input");
             }else{
-                getBoardState().setAbsoluteValueWithName(clickedCellName, intVal);
+                //getBoardState().setAbsoluteValueWithName(clickedCellName, intVal);
+
+                if (!getBoardState().userAddCell(clickedCellName, intVal)){//try to add it
+                    throw new IllegalArgumentException("A neighbor already contains that digit");
+                }
                 //refresh the square again because a number was added
                 invalidate(clickedCell); //todo if bug comes back, remove this
             }

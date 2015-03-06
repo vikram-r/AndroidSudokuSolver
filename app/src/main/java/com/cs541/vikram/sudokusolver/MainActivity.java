@@ -61,6 +61,12 @@ public class MainActivity extends ActionBarActivity {
         Log.v(TAG, "Clicked Solve!");
         Log.v(TAG, "BOARD STATE IS: " + boardState.toString());
 
+        if (boardState.solve()){
+            Log.v(TAG, "SOLVED!");
+        }else{
+            Log.v(TAG, "COULD NOT SOLVE");
+        }
+
     }
 
     public void clearBoard(View view){
