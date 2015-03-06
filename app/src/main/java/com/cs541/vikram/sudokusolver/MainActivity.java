@@ -18,11 +18,9 @@ public class MainActivity extends ActionBarActivity {
     private final String TAG = "SudokuSolver";
     private BoardState boardState = new BoardState();
 
-    public enum DEFAULT_PUZZLE { EASY, HARD, NONE };
+    public enum DEFAULT_PUZZLE { EASY, HARD, HARDEST, NONE };
 
-    //public DEFAULT_PUZZLE PUZZLE_CHOICE = DEFAULT_PUZZLE.EASY;
     public DEFAULT_PUZZLE PUZZLE_CHOICE = DEFAULT_PUZZLE.HARD;
-    //public DEFAULT_PUZZLE PUZZLE_CHOICE = DEFAULT_PUZZLE.NONE;
 
 
     @Override
@@ -68,7 +66,7 @@ public class MainActivity extends ActionBarActivity {
     public void clearBoard(View view){
         Log.v(TAG, "Clicked Clear!");
         boardState = new BoardState();
-        PUZZLE_CHOICE = DEFAULT_PUZZLE.NONE;
+        PUZZLE_CHOICE = DEFAULT_PUZZLE.NONE; //don't use the default puzzle upon clear
 
         setContentView(R.layout.sudoku_layout);
     }

@@ -200,6 +200,44 @@ public class BoardState {
 
     }
 
+
+    private Map<String, Set<Integer>> hypothesizeValue(Map<String, Set<Integer>> values){
+        if (values == null){
+            return null; //base case
+        }
+
+        boolean done = true;
+        for (Set<Integer> posVals : values.values()){
+            done = (posVals.size() == 1) && done;
+        }
+        if (done){
+            return values; //we are done!
+        }
+
+        //best first search heuristic
+        int min = 10; //initially all values are lower
+        String minName = "";
+        for (String name : values.keySet()){
+            Set<Integer> digits = values.get(name);
+            if (digits.size() > 1 && digits.size() < min){
+                min = digits.size();
+                minName = name;
+            }
+        }
+        assert(min < 10);
+        Set<Integer> digitsToTry = values.get(minName);
+        for (int digitToTry : digitsToTry) {
+            Log.v(TAG, "Trying for is~ (" + minName + ", " + digitToTry);
+            Map<String, Set<Integer>> copyValues = getPossibleValuesDeepCopy(values);
+            copyValues = hypothesizeValue(assignAndPropagate(copyValues, minName, digitToTry));
+            if (copyValues != null){
+                values = copyValues;
+                return values;
+            }
+        }
+        return null;
+    }
+
     private Set<String> getAllNeighbors(String name){
         Set<String> neighbors = new HashSet<>();
         for (Set<String> neighborhood : neighborhoods.get(name)){
@@ -213,12 +251,7 @@ public class BoardState {
     }
 
 
-
-
     //todo SOLVER________________________________________________
-
-
-
 
     //used when initially setting cell values. Can maybe do validation here
     public void setAbsoluteValueWithName(String name, int absValue){
@@ -293,6 +326,8 @@ public class BoardState {
                 counter++;
             }
         }
+        //possibleValues = hypothesizeValue(getPossibleValuesDeepCopy(possibleValues)); //todo uncomment this one too :P
+        possibleValues = hypothesizeValue(possibleValues); //todo uncomment this one too :P
 
         Log.v(TAG, "Did it work? " + possibleValues);
     }

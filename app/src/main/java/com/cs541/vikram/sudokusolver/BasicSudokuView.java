@@ -20,6 +20,12 @@ public class BasicSudokuView extends View {
 
     private final String TAG = "BasicSudokuView";
 
+    private final String EASY_PUZZLE = "003020600900305001001806400008102900700000008006708200002609500800203009005010300";
+    private final String HARD_PUZZLE = "400000805030000000000700000020000060000080400000010000000603070500200000104000000";
+    //private final String HARD_PUZZLE = "630000000000500008005674000000020000003401020000000345000007004080300902947100080";
+    //private final String HARD_PUZZLE = "850002400720000009004000000000107002305000900040000000000080070017000000000036040";
+    private final String HARDEST_PUZZLE = "800000000003600000070090200050007000000045700000100030001000068008500010090000400";
+
     private final int DIM = 9;
     private final int BLOCK_SIZE = 3;
 
@@ -143,10 +149,13 @@ public class BasicSudokuView extends View {
             //todo make this modifiable with command line!
             //initialize some default values if necessary
             if (((MainActivity)getContext()).PUZZLE_CHOICE == MainActivity.DEFAULT_PUZZLE.EASY){
-                String PUZZLE = "003020600900305001001806400008102900700000008006708200002609500800203009005010300";
+                String PUZZLE = EASY_PUZZLE;
                 getBoardState().setDefaultPuzzle(PUZZLE);
             }else if(((MainActivity)getContext()).PUZZLE_CHOICE == MainActivity.DEFAULT_PUZZLE.HARD){
-                String PUZZLE = "400000805030000000000700000020000060000080400000010000000603070500200000104000000";
+                String PUZZLE = HARD_PUZZLE;
+                getBoardState().setDefaultPuzzle(PUZZLE);
+            }else if(((MainActivity)getContext()).PUZZLE_CHOICE == MainActivity.DEFAULT_PUZZLE.HARDEST){
+                String PUZZLE = HARDEST_PUZZLE;
                 getBoardState().setDefaultPuzzle(PUZZLE);
             }
 
